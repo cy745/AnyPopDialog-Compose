@@ -1,9 +1,26 @@
+import java.util.Properties
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("maven-publish")
 }
 afterEvaluate {
-    apply(from = "../gradle/release/lib_publish.gradle")
+    publishing {
+        publications {
+            create("release", MavenPublication::class.java) {
+                from(components.getByName("release"))
+
+                val versionProps = Properties()
+                val file = File("${rootProject.projectDir}/gradle.properties")
+                versionProps.load(file.inputStream())
+
+                groupId = versionProps["GROUP_ID"] as String
+                artifactId = versionProps["LIB_ARTIFACT_ID"] as String
+                version = versionProps["LIB_VERSION_NAME"] as String
+            }
+        }
+    }
 }
 
 android {
